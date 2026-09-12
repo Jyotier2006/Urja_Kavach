@@ -5,9 +5,10 @@ PY := .venv/bin/python
 help: ## Show available targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
 
-install: ## Install Node and Python dependencies
+install: ## Install Node and Python dependencies, including test-only extras
 	npm ci
 	$(PY) -m pip install -r requirements.lock
+	$(PY) -m pip install -r requirements-dev.lock
 
 dev: ## Run the web app in development
 	npm run dev

@@ -1,0 +1,21 @@
+# Test-only dependencies. Deliberately separate from requirements.lock so none of this reaches
+# the API container image, which installs requirements.lock alone.
+#
+# amqtt provides an in-process MQTT broker for tests/test_mqtt_integration.py, which exercises the
+# full publisher -> broker -> subscriber -> API chain without needing Docker or a hosted broker.
+# The runtime itself never imports amqtt; the shipped services use paho-mqtt as a client only.
+amqtt==0.12.0
+argon2-cffi==25.1.0
+argon2-cffi-bindings==26.1.0
+cffi==2.1.1
+dacite==1.9.2
+markdown-it-py==4.2.0
+mdurl==0.1.2
+psutil==7.2.2
+pwdlib==0.3.1
+pycparser==3.0
+pyyaml==6.0.3
+rich==15.0.0
+shellingham==1.5.4
+transitions==0.9.3
+typer==0.27.2
