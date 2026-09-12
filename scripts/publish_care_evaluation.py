@@ -11,6 +11,7 @@ The CARE score itself is computed separately and reported alongside, under the b
 at its own event threshold of 72, rather than at the operating point chosen above. Components are pooled
 over every scored event rather than averaged per farm, because the farms hold very different event counts.
 """
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -80,6 +81,11 @@ def care_benchmark(farms: list[dict], events: list[dict]) -> dict:
         "detected_events": detected, "missed_events": anomalies - detected,
         "false_alarm_events": false_alarm_events,
         "anomaly_events_with_no_running_rows_in_window": empty_windows,
+        # Kept per farm as well as pooled: farm A scores zero under the paper's own no-detection rule,
+        # and a single pooled figure would bury that.
+        "per_farm": [{"farm": f["farm"], **{k: f["care_benchmark"][k] for k in
+                      ("care", "coverage", "accuracy", "reliability", "earliness")}}
+                     for f in farms if "care_benchmark" in f],
         "definition": "Guck, Roelofs and Faulstich, Data 2024, 9(12), 138; doi:10.3390/data9120138",
         "conventions": [
             "Only prediction-window rows are scored; training rows are the model's own fitting data.",
@@ -103,6 +109,31 @@ def choose_threshold(farms: list[dict]) -> str | None:
         detected = sum(f["criticality_sweep"][key]["detected"] for f in farms)
         viable.append((detected, -int(key), key))
     return max(viable)[2] if viable else None
+
+
+def set_m2_status(target: Path, status: str) -> None:
+    """Keep the model table's own status line in step with what was actually computed."""
+    for name in ("metrics.json", "bundle.json"):
+        path = target / name
+        if not path.exists(): continue
+        data = json.loads(path.read_text())
+        block = data if name == "metrics.json" else data.get("metrics", {})
+        for model in block.get("care", {}).get("models", []):
+            if model.get("id") == "M2": model["status"] = status
+        path.write_text(json.dumps(data, separators=(",", ":"), allow_nan=False))
+
+
+def refresh_manifest(target: Path) -> None:
+    """care-evaluation.json is hash-tracked, so rewriting it without this leaves the published
+    hashes wrong - and the Performance page invites the reader to check them."""
+    path = target / "manifest.json"
+    if not path.exists(): return
+    manifest = json.loads(path.read_text())
+    for tracked in manifest.get("files", {}):
+        f = target / tracked
+        if f.exists():
+            manifest["files"][tracked] = hashlib.sha256(f.read_bytes()).hexdigest()
+    path.write_text(json.dumps(manifest, separators=(",", ":"), allow_nan=False))
 
 
 def main():
@@ -161,10 +192,25 @@ def main():
     }
 
     encoded = json.dumps(artifact, separators=(",", ":"), allow_nan=False)
+    benchmark = artifact["care_benchmark"]
+    status = ("Measured on real CARE events; CARE score computed from the published definition"
+              if benchmark.get("computed") else
+              "Measured on real CARE events (see above); benchmark quantities not computed")
     for target in TARGETS:
         target.mkdir(parents=True, exist_ok=True)
         (target / "care-evaluation.json").write_text(encoded)
+        set_m2_status(target, status)
+        refresh_manifest(target)
+
+    models_path = METRICS / "models.json"
+    if models_path.exists():
+        models = json.loads(models_path.read_text())
+        for model in models.get("care", {}).get("models", []):
+            if model.get("id") == "M2": model["status"] = status
+        models_path.write_text(json.dumps(models, indent=2))
+
     print(json.dumps(artifact["totals"] | {"threshold": int(key)}, indent=2))
+    print(json.dumps(benchmark, indent=2))
 
 
 if __name__ == "__main__":

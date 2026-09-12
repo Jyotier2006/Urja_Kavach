@@ -219,9 +219,27 @@ At the published criticality threshold of **432**, the committed artifacts repor
 
 Source: [published CARE evaluation](artifacts/demo_bundle/care-evaluation.json) and the per-event reports for [Farm A](artifacts/metrics/care_m2_wind_farm_a.json), [Farm B](artifacts/metrics/care_m2_wind_farm_b.json) and [Farm C](artifacts/metrics/care_m2_wind_farm_c.json).
 
-These are project-specific measurements, not the official CARE score or its Coverage, Accuracy, Reliability and Earliness components. The 26.30-day figure belongs to **Farm B**, not the full fleet. The eight excluded events do not disappear from the evaluation: they have fewer than the required observable prediction rows.
+These are project-specific measurements at a deployable operating point. The 26.30-day figure belongs to **Farm B**, not the full fleet. The eight excluded events do not disappear from the evaluation: they have fewer than the required observable prediction rows.
 
-**Evaluation boundary:** a chronological training/calibration split exists within each event, but the published operating point is selected from the reported event sweep. In the current [publication script](scripts/publish_care_evaluation.py), detection count participates in selection under a normal-event false-alarm budget. This is therefore exploratory evidence, not a frozen, independent event-level test result. The running-status filter also differs from the brief's official Farm A scoring convention. A clean dev/test protocol and official CARE scoring remain necessary before benchmark claims.
+**Evaluation boundary:** a chronological training/calibration split exists within each event, but the published operating point is selected from the reported event sweep. In the current [publication script](scripts/publish_care_evaluation.py), detection count participates in selection under a normal-event false-alarm budget. This is therefore exploratory evidence, not a frozen, independent event-level test result. The running-status filter also differs from the brief's official Farm A scoring convention. A clean dev/test protocol remains necessary before any leaderboard claim.
+
+### The CARE score
+
+The benchmark defines its own composite, and [care_score.py](services/ml/care_score.py) computes it from the published definition rather than leaving the table blank. Scored at the benchmark's **own event threshold of 72**, not at the operating point above, so these figures are stricter on false alarms and are not comparable row-for-row with the table above.
+
+| | **M2 pooled** | Farm A | Farm B | Farm C |
+|---|---:|---:|---:|---:|
+| **CARE** | **0.577** | 0.000 | 0.649 | 0.580 |
+| Coverage · F₀.₅ per anomaly event | 0.386 | 0.007 | 0.628 | 0.388 |
+| Accuracy · tn/(fp+tn) per normal event | 0.871 | 0.944 | 0.891 | 0.841 |
+| Reliability · event-level F₀.₅ | 0.480 | 0.000 | 0.556 | 0.516 |
+| Earliness · weighted window share | 0.275 | 0.001 | 0.281 | 0.315 |
+
+Pooled over 37 anomaly and 50 normal events: 22 detected, 15 missed, 26 normal events alarmed. Components are pooled across every scored event rather than averaged per farm, because the farms hold 12, 6 and 27 anomaly events. **Farm A scores zero** under the paper's own rule that a run detecting nothing scores nothing; three of its scored anomaly events have no running hours inside their own labelled window, so no positive datapoint exists to find. Those events stay in the average rather than being dropped.
+
+Two conventions the paper leaves to the implementer are fixed explicitly, because they move the result: only prediction-window rows are scored, and within an anomaly event a row is positive when it falls inside `[event_start, event_end]`. Rows outside normal operating status are excluded, which the paper does require.
+
+This is **our implementation of the published definition, not a score returned by the benchmark's own harness**, and not a leaderboard entry. Definition: Gück, Roelofs and Faulstich, *Data* 2024, 9(12), 138.
 
 ### Infrared: held-out image classification
 

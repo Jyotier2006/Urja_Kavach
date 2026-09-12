@@ -3,10 +3,28 @@
     "farm": "B",
     "model": "M2 - LightGBM temperature normal-behavior models",
     "data": "real CARE To Compare v6",
+    "care_benchmark": {
+      "care": 0.6493,
+      "coverage": 0.6279,
+      "accuracy": 0.8909,
+      "reliability": 0.5556,
+      "earliness": 0.2813,
+      "rule": "weighted average of the four components",
+      "beta": 0.5,
+      "event_threshold": 72,
+      "anomaly_events_scored": 6,
+      "normal_events_scored": 9,
+      "detected_events": 6,
+      "missed_events": 0,
+      "false_alarm_events": 6,
+      "definition": "Guck, Roelofs and Faulstich, Data 2024, 9(12), 138; doi:10.3390/data9120138",
+      "caveat": "Our implementation of the published definition, computed on the events this project could assess. Not a score returned by the benchmark's own harness and not a leaderboard entry."
+    },
     "caveat": "Own normal-behavior approach evaluated on real CARE labels; not a published CARE benchmark score.",
     "targets_per_event": 25,
     "baseline_flag_rate": 0.01,
     "smoothing_window_rows": 72,
+    "common_mode_rejection": false,
     "threshold_selection": "z cut-off calibrated per event on held-out normal training rows; no event labels used",
     "events_evaluated": 15,
     "events_not_assessable": 0,
@@ -97,7 +115,7 @@
         "false_alarm_rate": 0.0
       }
     },
-    "runtime_seconds": 330.3
+    "runtime_seconds": 413.2
   },
   "events": [
     {
@@ -149,6 +167,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.6856,
+        "scored_rows": 2160
       }
     },
     {
@@ -216,6 +238,12 @@
           "warning_days_before_event_end": -2.64
         },
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.5574,
+        "earliness": 0.196,
+        "anomaly_rows_in_window": 4210,
+        "scored_rows": 4911
       }
     },
     {
@@ -267,6 +295,12 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.6318,
+        "earliness": 0.2453,
+        "anomaly_rows_in_window": 2855,
+        "scored_rows": 3696
       }
     },
     {
@@ -298,6 +332,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 1269
       }
     },
     {
@@ -333,6 +371,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9897,
+        "scored_rows": 1743
       }
     },
     {
@@ -392,6 +434,12 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.5141,
+        "earliness": 0.2003,
+        "anomaly_rows_in_window": 8404,
+        "scored_rows": 8692
       }
     },
     {
@@ -463,6 +511,12 @@
           "before_event_start": false,
           "warning_days_before_event_end": -3.6
         }
+      },
+      "care_components": {
+        "coverage": 0.4959,
+        "earliness": 0.2119,
+        "anomaly_rows_in_window": 3046,
+        "scored_rows": 3889
       }
     },
     {
@@ -514,6 +568,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9366,
+        "scored_rows": 2730
       }
     },
     {
@@ -585,6 +643,12 @@
           "before_event_start": false,
           "warning_days_before_event_end": 27.87
         }
+      },
+      "care_components": {
+        "coverage": 0.8643,
+        "earliness": 0.5622,
+        "anomaly_rows_in_window": 5711,
+        "scored_rows": 5711
       }
     },
     {
@@ -632,6 +696,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9066,
+        "scored_rows": 3019
       }
     },
     {
@@ -703,6 +771,12 @@
           "before_event_start": false,
           "warning_days_before_event_end": 12.83
         }
+      },
+      "care_components": {
+        "coverage": 0.7038,
+        "earliness": 0.2719,
+        "anomaly_rows_in_window": 7862,
+        "scored_rows": 8223
       }
     },
     {
@@ -754,6 +828,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.8391,
+        "scored_rows": 2387
       }
     },
     {
@@ -805,6 +883,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9468,
+        "scored_rows": 12859
       }
     },
     {
@@ -836,6 +918,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 2856
       }
     },
     {
@@ -887,6 +973,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.7134,
+        "scored_rows": 2934
       }
     }
   ]

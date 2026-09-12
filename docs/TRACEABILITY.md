@@ -43,7 +43,7 @@ Role switching changes the workspace view. It is a demonstration control, not au
 These are stated rather than hidden, and each has a reason.
 
 - **TensorFlow is not used.** The infrared model is PyTorch and the wind models are LightGBM. The problem statement lists technologies that *can* be used; these were chosen for CPU inference size and tabular performance.
-- **The CARE result is not an official benchmark score.** It uses real CARE v6 data and real event labels, but computes project-defined detection and false-alarm measures rather than the benchmark's Coverage, Accuracy, Reliability and Earliness components.
+- **The CARE score is our implementation of the published definition, not a score from the benchmark's own harness.** Coverage, Accuracy, Reliability and Earliness are computed in `services/ml/care_score.py` from the paper's formulas (pooled M2: CARE 0.577), but two conventions the paper leaves open had to be fixed by us and are published alongside the numbers. There is still no frozen dev/test protocol, so this is not a leaderboard entry.
 - **M1 and M3 are unavailable.** Their endpoints reject requests with 409 rather than returning a fabricated score.
 - **Kubernetes manifests have not been applied to a live cluster.** They render through Kustomize and pass client-side validation.
 - **Real solar telemetry has not been acquired.** The solar operating series are simulated; the infrared classifier is the measured solar capability.

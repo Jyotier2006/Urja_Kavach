@@ -18,7 +18,7 @@ Complete website with all product screens and working demo interactions, Python 
 - Thermal-inertia predictors and trend scoring added (D013), and common-mode rejection tried then rejected on measurement (D014).
 - **All three farms evaluated at one deployable threshold (D015): 14 of 37 anomaly events detected, 4 of 50 healthy events raising a false alarm, 26.3-day median warning on the strongest farm.** Per farm: 0 of 4 on A, 5 of 6 on B, 9 of 27 on C. Farm C was never tuned against and is the honest test; the farm B figure must not be quoted alone.
 - Farm A contributes little: 8 of its 12 anomaly events have no running hours in the prediction window and are reported as not assessable rather than as misses. That is how farm A's windows were cut, not a tuning failure.
-- Results published to the Performance page via `scripts/publish_care_evaluation.py`, sitting above the official CARE benchmark table, which stays empty because those quantities have not been computed.
+- Results published to the Performance page via `scripts/publish_care_evaluation.py`, sitting above the official CARE benchmark table. (Corrected 2026-09-13: that table is no longer empty — the CARE score is now computed from the published definition. See the section below.)
 - Results in `artifacts/metrics/care_m2_wind_farm_{a,b,c}.json`, ablation in `care_m2_wind_farm_b_cmr.json`.
 - All five handoff issues fixed and verified: 3D rendering, mobile overflow, journey wording, offline/RSC prefetch 404s, accessibility. See docs/HANDOFF.md.
 - Verification: 30 Python tests, 3 Playwright journey tests, production build, typecheck and lint all pass.
@@ -44,6 +44,16 @@ Complete website with all product screens and working demo interactions, Python 
 - **CI had never run.** `--only-binary=:all:` puts a colon-space inside a plain YAML scalar, so GitHub rejected the workflow outright — fifteen runs across both repositories, none of which scheduled a job. Once fixed, two further failures surfaced that had always been latent: `setup-python`'s pip cache could not resolve a dependency file because this project pins through `.lock` files, and the manifest job used a validator that requires a live cluster.
 - `docs/TRACEABILITY.md` was rewritten against the problem statement clause by clause; it had still recorded "CARE metrics unavailable", contradicting the published results.
 - Verification: 48 Python tests (was 35), 3 Playwright tests, typecheck, lint, production build, offline service worker, and both overlays valid under kubeconform — 8 resources in dev, 10 in prod.
+
+## CARE score computed (2026-09-13)
+- The benchmark's own composite is no longer left blank. `services/ml/care_score.py` implements the published definition: Coverage as datapoint F-0.5 over anomaly events, Accuracy as tn/(fp+tn) over normal events, Reliability as event-level F-0.5 at the paper's own criticality threshold of 72, and Earliness under the piecewise weight that pays full credit across the first half of a window and nothing at its end. Weighted average with accuracy counted twice, including both overriding rules.
+- **Pooled M2: CARE 0.577** (coverage 0.386, accuracy 0.871, reliability 0.480, earliness 0.275) over 37 anomaly and 50 normal events. Per farm: A 0.000, B 0.649, C 0.580.
+- Farm A scores zero under the paper's own no-detection rule. Three of its scored anomaly events have no running hours inside their own labelled window, so after the status filter the benchmark requires there is no positive datapoint to find. They stay in the average rather than being dropped.
+- Farm C, the largest at 27 anomaly events and never tuned against, scores 0.580 against farm B's 0.649 — a closer generalisation gap than the detection-rate table alone suggests.
+- Two conventions the paper leaves open are fixed explicitly and published with the numbers, because they move the result: only prediction-window rows are scored, and a row is positive when it falls inside the labelled event window.
+- Retraining all three farms reproduced the operating-point results exactly (14/37, 4/50, 26.3 days at threshold 432), which is a useful determinism check on the pipeline.
+- Unit tests pin the formulas against the definition rather than against our output, including that beta=1/2 punishes a false alarm harder than a miss.
+- Fixed while doing this: `publish_care_evaluation.py` rewrote the hash-tracked `care-evaluation.json` without refreshing the manifest, so the hashes the Performance page invites readers to verify would have gone stale.
 
 ## Outstanding evidence
 - M1 (EnergyFaultDetector autoencoder), M3 and the M1/M2 fusion are still untrained; SHAP explanations are still absent. M2 and the infrared CNN are the real models.

@@ -43,7 +43,7 @@
         "test_events": null,
         "false_alarms": null,
         "lead_time_hours": null,
-        "status": "Measured on real CARE events (see above); benchmark quantities not computed"
+        "status": "Measured on real CARE events; CARE score computed from the published definition"
       },
       {
         "id": "M3",

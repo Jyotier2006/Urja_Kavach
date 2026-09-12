@@ -3,10 +3,28 @@
     "farm": "A",
     "model": "M2 - LightGBM temperature normal-behavior models",
     "data": "real CARE To Compare v6",
+    "care_benchmark": {
+      "care": 0.0,
+      "coverage": 0.0068,
+      "accuracy": 0.9444,
+      "reliability": 0.0,
+      "earliness": 0.0013,
+      "rule": "no anomaly event detected, so the paper fixes the score at 0",
+      "beta": 0.5,
+      "event_threshold": 72,
+      "anomaly_events_scored": 4,
+      "normal_events_scored": 10,
+      "detected_events": 0,
+      "missed_events": 4,
+      "false_alarm_events": 4,
+      "definition": "Guck, Roelofs and Faulstich, Data 2024, 9(12), 138; doi:10.3390/data9120138",
+      "caveat": "Our implementation of the published definition, computed on the events this project could assess. Not a score returned by the benchmark's own harness and not a leaderboard entry."
+    },
     "caveat": "Own normal-behavior approach evaluated on real CARE labels; not a published CARE benchmark score.",
     "targets_per_event": 24,
     "baseline_flag_rate": 0.01,
     "smoothing_window_rows": 72,
+    "common_mode_rejection": false,
     "threshold_selection": "z cut-off calibrated per event on held-out normal training rows; no event labels used",
     "events_evaluated": 14,
     "events_not_assessable": 8,
@@ -97,7 +115,7 @@
         "false_alarm_rate": 0.0
       }
     },
-    "runtime_seconds": 282.8
+    "runtime_seconds": 386.4
   },
   "events": [
     {
@@ -129,6 +147,12 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.0,
+        "earliness": 0.0,
+        "anomaly_rows_in_window": 0,
+        "scored_rows": 288
       }
     },
     {
@@ -176,6 +200,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9306,
+        "scored_rows": 3302
       }
     },
     {
@@ -233,6 +261,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.8487,
+        "scored_rows": 3583
       }
     },
     {
@@ -264,6 +296,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 1901
       }
     },
     {
@@ -311,6 +347,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9346,
+        "scored_rows": 2781
       }
     },
     {
@@ -360,6 +400,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9322,
+        "scored_rows": 2714
       }
     },
     {
@@ -391,6 +435,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 2423
       }
     },
     {
@@ -436,6 +484,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9847,
+        "scored_rows": 2544
       }
     },
     {
@@ -471,6 +523,12 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.0272,
+        "earliness": 0.0053,
+        "anomaly_rows_in_window": 2522,
+        "scored_rows": 2666
       }
     },
     {
@@ -502,6 +560,12 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.0,
+        "earliness": 0.0,
+        "anomaly_rows_in_window": 0,
+        "scored_rows": 145
       }
     },
     {
@@ -551,6 +615,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 2593
       }
     },
     {
@@ -598,6 +666,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.8665,
+        "scored_rows": 2449
       }
     },
     {
@@ -629,6 +701,12 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "coverage": 0.0,
+        "earliness": 0.0,
+        "anomaly_rows_in_window": 0,
+        "scored_rows": 145
       }
     },
     {
@@ -684,6 +762,10 @@
         "576": null,
         "864": null,
         "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.947,
+        "scored_rows": 1774
       }
     }
   ]
