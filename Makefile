@@ -45,10 +45,14 @@ images: ## Build both container images
 	docker build -f docker/api.Dockerfile -t urjakavach-api:latest .
 	docker build -f docker/web.Dockerfile -t urjakavach-web:latest .
 
-k8s-validate: ## Render and validate both Kubernetes overlays
+k8s-validate: ## Render and schema-check both Kubernetes overlays, no cluster needed
+	@command -v kubeconform >/dev/null 2>&1 || { \
+		echo "kubeconform is required: https://github.com/yannh/kubeconform/releases"; \
+		echo "kubectl apply --dry-run=client cannot be used here; it needs a live cluster for the OpenAPI schema."; \
+		exit 1; }
 	@for overlay in dev prod; do \
 		echo "== $$overlay =="; \
-		kubectl kustomize k8s/overlays/$$overlay | kubectl apply --dry-run=client -f - ; \
+		kubectl kustomize k8s/overlays/$$overlay | kubeconform -strict -summary -kubernetes-version 1.30.0 ; \
 	done
 
 k8s-dev: ## Apply the dev overlay to the current kube context

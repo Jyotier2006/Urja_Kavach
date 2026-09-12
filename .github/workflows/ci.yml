@@ -20,6 +20,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          # Required: this project pins through .lock files, and none of them match the
+          # action's default dependency globs, so caching fails to resolve a file and errors.
+          cache-dependency-path: |
+            requirements.lock
+            requirements-dev.lock
       # Quoted: the `:all:` in --only-binary puts a colon-space inside the value, which YAML
       # cannot carry in a plain scalar. Unquoted, GitHub rejects the whole file as invalid.
       - run: "pip install --only-binary=:all: -r requirements.lock"
@@ -105,10 +110,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate both overlays
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: v1.30.0
+      # `kubectl apply --dry-run=client` still downloads the OpenAPI schema from a live cluster,
+      # so it cannot validate anything on a runner - it fails on the connection, not the manifests.
+      # kubeconform checks the rendered output against the Kubernetes JSON schemas offline.
+      - name: Install kubeconform
+        run: |
+          curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /tmp kubeconform
+          sudo install /tmp/kubeconform /usr/local/bin/kubeconform
+      - name: Render and validate both overlays
         run: |
           for overlay in dev prod; do
             echo "::group::$overlay"
-            kubectl kustomize "k8s/overlays/$overlay" | kubectl apply --dry-run=client -f -
+            kubectl kustomize "k8s/overlays/$overlay" \
+              | kubeconform -strict -summary -kubernetes-version 1.30.0
             echo "::endgroup::"
           done

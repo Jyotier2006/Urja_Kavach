@@ -336,7 +336,7 @@ Docker and Kubernetes configuration is included in the repository. The deploymen
 | Path | Included implementation | Verification recorded in deployment docs |
 |---|---|---|
 | **Docker Compose** | Multi-stage API/web images, NGINX, PostgreSQL, health checks and persistent database volume | Both images built; full stack reported healthy |
-| **Kubernetes / K8s** | Kustomize base, dev/prod overlays, Deployments, Services, Ingress, ConfigMap, Secret template, probes, resource limits, API HPA and PodDisruptionBudget | Overlays rendered and client-side validation reported; live-cluster rollout not yet verified |
+| **Kubernetes / K8s** | Kustomize base, dev/prod overlays, Deployments, Services, Ingress, ConfigMap, Secret template, probes, resource limits, API HPA and PodDisruptionBudget | Both overlays render and pass offline schema validation in CI — 8 resources in dev, 10 in prod; live-cluster rollout not yet verified |
 | **Vercel** | Next.js static-export deployment settings | Web can be deployed independently; Python API is hosted separately |
 
 ### Kubernetes topology
@@ -371,7 +371,8 @@ Before applying an overlay, provide reachable PostgreSQL, real secrets, an ingre
 kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/prod
 
-# Validate using an appropriately configured kubectl context.
+# Schema-check both overlays offline. Needs kubeconform, not a cluster:
+# `kubectl apply --dry-run=client` downloads its schema from a live API server.
 make k8s-validate
 
 # After configuring images, database, secrets and ingress:
