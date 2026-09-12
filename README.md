@@ -275,8 +275,8 @@ Capacity, tariff, repair costs, downtime, derating and hazard assumptions are ed
 ### Full local stack with Docker Compose
 
 ```bash
-git clone https://github.com/Jyotier2006/UrjaKavach.git
-cd UrjaKavach
+git clone https://github.com/Jyotier2006/Urja_Kavach.git
+cd Urja_Kavach
 docker compose up --build -d
 docker compose ps
 ```
@@ -477,7 +477,7 @@ Rebuild the web export after publishing new artifacts. Keep model evaluation out
 
 ## Quality and continuous integration
 
-The [GitHub Actions workflow](.github/workflows/ci.yml) defines Python tests, type checking, linting, static export, browser journeys, Docker image builds and Kubernetes manifest validation. Image builds do not publish to a registry. See [Actions](https://github.com/Jyotier2006/UrjaKavach/actions) for current run status; configured checks are not a claim of green CI.
+The [GitHub Actions workflow](.github/workflows/ci.yml) defines Python tests, type checking, linting, static export, browser journeys, Docker image builds and Kubernetes manifest validation. Image builds do not publish to a registry. See [Actions](https://github.com/Jyotier2006/Urja_Kavach/actions) for current run status; configured checks are not a claim of green CI.
 
 ```bash
 .venv/bin/python -m pytest services tests -q
@@ -522,8 +522,8 @@ Contributions should follow [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes foc
 
 **UrjaKavach · Renewable today. Resilient tomorrow.**
 
-Built for HackOut’26 · [Repository](https://github.com/Jyotier2006/UrjaKavach) · [Engineering decisions](docs/DECISIONS.md) · [Deployment](docs/DEPLOYMENT.md)
+Built for HackOut’26 · [Repository](https://github.com/Jyotier2006/Urja_Kavach) · [Engineering decisions](docs/DECISIONS.md) · [Deployment](docs/DEPLOYMENT.md)
 
 </div>
 
-<sub>Documentation reviewed against repository revision <a href="https://github.com/Jyotier2006/UrjaKavach/commit/7b445a4f587825ad7a0717da566649b0e38d9b26">7b445a4</a>. Model numbers are quoted from committed artifacts; infrastructure status is taken from the deployment records, not a new training run or cluster rollout.</sub>
+<sub>Documentation reviewed against repository revision <a href="https://github.com/Jyotier2006/Urja_Kavach/commit/7b445a4f587825ad7a0717da566649b0e38d9b26">7b445a4</a>. Model numbers are quoted from committed artifacts; infrastructure status is taken from the deployment records, not a new training run or cluster rollout.</sub>
