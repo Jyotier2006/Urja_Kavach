@@ -7,12 +7,17 @@ One threshold is chosen for all farms, not a per-farm best. A per-farm tuned thr
 because in service you deploy a single alarm level and discover the rest. The threshold is picked on the
 healthy events alone, which is how an alarm level is set on a known-good fleet; the fault labels never vote.
 
-Deliberately kept apart from the official CARE benchmark reporting contract in metrics.json. That table's
-columns (CARE score, coverage, accuracy, reliability, earliness) are the benchmark's own defined quantities,
-which this project has not computed. They stay empty.
+The CARE score itself is computed separately and reported alongside, under the benchmark's own definition
+at its own event threshold of 72, rather than at the operating point chosen above. Components are pooled
+over every scored event rather than averaged per farm, because the farms hold very different event counts.
 """
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from services.ml.care_score import RELIABILITY_CRITICALITY_THRESHOLD, care, reliability
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / "artifacts/metrics"
@@ -29,6 +34,62 @@ def load_farms() -> list[dict]:
         summary = json.loads(path.read_text())["summary"]
         farms.append(summary)
     return farms
+
+
+def load_events() -> list[dict]:
+    events = []
+    for farm in FARMS:
+        path = METRICS / f"care_m2_wind_farm_{farm}.json"
+        if not path.exists(): continue
+        events.extend(json.loads(path.read_text())["events"])
+    return events
+
+
+def mean(values: list[float]) -> float:
+    return float(sum(values) / len(values)) if values else 0.0
+
+
+def care_benchmark(farms: list[dict], events: list[dict]) -> dict:
+    """The CARE score over every scored event, pooled rather than averaged per farm."""
+    coverages = [e["care_components"]["coverage"] for e in events
+                 if e.get("care_components") and e["label"] == "anomaly"]
+    earlinesses = [e["care_components"]["earliness"] for e in events
+                   if e.get("care_components") and e["label"] == "anomaly"]
+    accuracies = [e["care_components"]["accuracy"] for e in events
+                  if e.get("care_components") and e["label"] == "normal"]
+    if not coverages and not accuracies:
+        return {"computed": False, "reason": "No per-event CARE components found. Re-run scripts/train_care_nbm.py."}
+
+    key = str(RELIABILITY_CRITICALITY_THRESHOLD)
+    detected = sum(f["criticality_sweep"][key]["detected"] for f in farms)
+    anomalies = sum(f["anomaly_events"] for f in farms)
+    false_alarm_events = sum(f["criticality_sweep"][key]["false_alarms"] for f in farms)
+    scored = care(
+        coverage_mean=mean(coverages), earliness_mean=mean(earlinesses),
+        reliability_value=reliability(detected, anomalies - detected, false_alarm_events),
+        accuracy_mean=mean(accuracies), detected_any=detected > 0,
+    )
+    # An anomaly event whose turbine never runs inside its own labelled window offers no positive
+    # datapoint to find, so its coverage and earliness are structurally zero. Reported, not hidden.
+    empty_windows = len([e for e in events if e.get("care_components")
+                         and e["label"] == "anomaly" and e["care_components"].get("anomaly_rows_in_window") == 0])
+    return {
+        "computed": True, **scored.as_dict(),
+        "beta": 0.5, "event_threshold": RELIABILITY_CRITICALITY_THRESHOLD,
+        "anomaly_events_scored": len(coverages), "normal_events_scored": len(accuracies),
+        "detected_events": detected, "missed_events": anomalies - detected,
+        "false_alarm_events": false_alarm_events,
+        "anomaly_events_with_no_running_rows_in_window": empty_windows,
+        "definition": "Guck, Roelofs and Faulstich, Data 2024, 9(12), 138; doi:10.3390/data9120138",
+        "conventions": [
+            "Only prediction-window rows are scored; training rows are the model's own fitting data.",
+            "Rows outside normal operating status are excluded, as the benchmark requires.",
+            "Within an anomaly event a row is positive when it falls inside [event_start, event_end].",
+            f"Reliability counts an event detected when criticality crosses {RELIABILITY_CRITICALITY_THRESHOLD}, the paper's own threshold.",
+        ],
+        "caveat": ("Our implementation of the published definition, over the events this project could assess. "
+                   "Not a score returned by the benchmark's own harness and not a leaderboard entry."),
+    }
 
 
 def choose_threshold(farms: list[dict]) -> str | None:
@@ -73,7 +134,8 @@ def main():
         "model": "M2 - LightGBM temperature normal-behavior models",
         "data": "CARE To Compare v6 (real wind turbine SCADA)",
         "provenance": "Measured",
-        "caveat": "Our own normal-behavior evaluation on real CARE labels. Not a published CARE benchmark score.",
+        "caveat": "Our own normal-behavior evaluation on real CARE labels, reported at the operating point below. The CARE score itself is computed separately, under the benchmark's definition.",
+        "care_benchmark": care_benchmark(farms, load_events()),
         "operating_point": {
             "criticality_threshold": int(key),
             "selection": f"one threshold for every farm, the most sensitive whose false-alarm rate over all healthy events stays under {int(FALSE_ALARM_BUDGET * 100)}%. Chosen on healthy events only; fault labels never vote.",

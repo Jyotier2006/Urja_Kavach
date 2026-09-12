@@ -25,6 +25,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from services.ml.care_loader import NORMAL_STATUS_IDS, event_ids, infer_schema, load_event, load_event_info
+from services.ml.care_score import RELIABILITY_CRITICALITY_THRESHOLD, accuracy, care, coverage, earliness, earliness_weights, reliability
 from services.ml.criticality import criticality_counter
 from services.ml.normal_behavior import calibrate_threshold, reject_common_mode, score_event, score_matrix, smooth_matrix
 
@@ -89,6 +90,25 @@ def evaluate_event(farm: str, event_id: int, schema, info_row, baseline_flag_rat
         "event_end": info_row["event_end"].isoformat(),
         "alarms": {},
     }
+
+    # CARE components for this event, from the same label-free flags the counter already uses.
+    # Scored over prediction-window rows only; training rows are the model's own fitting data.
+    predictions = np.asarray(flags, dtype=bool)[is_prediction]
+    prediction_times = times.to_numpy()[is_prediction]
+    if info_row["event_label"] == "anomaly":
+        start, end = info_row["event_start"], info_row["event_end"]
+        inside = (prediction_times >= np.datetime64(start)) & (prediction_times <= np.datetime64(end))
+        outcome["care_components"] = {
+            "coverage": round(coverage(predictions, inside), 4),
+            "earliness": round(earliness(predictions, earliness_weights(prediction_times, start, end)), 4),
+            "anomaly_rows_in_window": int(inside.sum()),
+            "scored_rows": int(predictions.size),
+        }
+    else:
+        outcome["care_components"] = {
+            "accuracy": round(accuracy(predictions), 4),
+            "scored_rows": int(predictions.size),
+        }
     for threshold in CRITICALITY_SWEEP:
         index = first_crossing(counts, is_prediction, threshold)
         if index is None:
@@ -123,10 +143,39 @@ def summarise(results: list[dict], farm: str, schema, baseline_flag_rate: float,
             "false_alarms": len(false_alarms),
             "false_alarm_rate": round(len(false_alarms) / len(normals), 3) if normals else None,
         }
+    # The CARE score, at the paper's own event threshold of 72 rather than our published operating point.
+    key = str(RELIABILITY_CRITICALITY_THRESHOLD)
+    detected = [r for r in anomalies if r["alarms"][key]]
+    false_alarm_events = len([r for r in normals if r["alarms"][key]])
+    coverages = [r["care_components"]["coverage"] for r in anomalies if "care_components" in r]
+    earlinesses = [r["care_components"]["earliness"] for r in anomalies if "care_components" in r]
+    accuracies = [r["care_components"]["accuracy"] for r in normals if "care_components" in r]
+    scored = care(
+        coverage_mean=float(np.mean(coverages)) if coverages else 0.0,
+        earliness_mean=float(np.mean(earlinesses)) if earlinesses else 0.0,
+        reliability_value=reliability(len(detected), len(anomalies) - len(detected), false_alarm_events),
+        accuracy_mean=float(np.mean(accuracies)) if accuracies else 0.0,
+        detected_any=bool(detected),
+    )
+    care_benchmark = {
+        **scored.as_dict(),
+        "beta": 0.5,
+        "event_threshold": RELIABILITY_CRITICALITY_THRESHOLD,
+        "anomaly_events_scored": len(coverages),
+        "normal_events_scored": len(accuracies),
+        "detected_events": len(detected),
+        "missed_events": len(anomalies) - len(detected),
+        "false_alarm_events": false_alarm_events,
+        "definition": "Guck, Roelofs and Faulstich, Data 2024, 9(12), 138; doi:10.3390/data9120138",
+        "caveat": ("Our implementation of the published definition, computed on the events this project could "
+                   "assess. Not a score returned by the benchmark's own harness and not a leaderboard entry."),
+    }
+
     return {
         "farm": farm,
         "model": "M2 - LightGBM temperature normal-behavior models",
         "data": "real CARE To Compare v6",
+        "care_benchmark": care_benchmark,
         "caveat": "Own normal-behavior approach evaluated on real CARE labels; not a published CARE benchmark score.",
         "targets_per_event": len(schema.targets),
         "baseline_flag_rate": baseline_flag_rate,
