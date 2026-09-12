@@ -331,7 +331,7 @@ Set `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` in `apps/web/.env.local` and res
 
 ## Deployment
 
-Docker and Kubernetes configuration are included in the repository. The deployment paths serve the same static frontend and Python API; they differ in infrastructure management.
+Docker and Kubernetes configuration is included in the repository. The deployment paths serve the same static frontend and Python API; they differ in infrastructure management.
 
 | Path | Included implementation | Verification recorded in deployment docs |
 |---|---|---|
@@ -364,7 +364,7 @@ flowchart TB
 
 The dev overlay uses one replica per Deployment and removes the HPA and disruption budget. The prod overlay starts with three replicas per Deployment; the API HPA allows two to eight replicas at a 70% CPU target. Manifests declare non-root execution, read-only root filesystems, dropped capabilities, resource bounds and health probes. These settings describe committed configuration, not a demonstrated availability guarantee.
 
-Before applying an overlay, provide reachable PostgreSQL, real secrets, an ingress controller and the referenced images. Replace the host/origin settings and verify the active Kubernetes context. The prod overlay references GHCR tags that must be published separately; CI currently builds images without pushing them. Use an **absolute browser-accessible API URL**, including `/api` when using the supplied ingress, when building the web image so REST and WebSocket URLs resolve correctly.
+Before applying an overlay, provide reachable PostgreSQL, real secrets, an ingress controller and the referenced images. Replace the host/origin settings and verify the active Kubernetes context. The prod overlay references GHCR tags that must be published separately; CI currently builds images without pushing them. When building the web image, use an **absolute browser-accessible API URL** (including `/api` under the supplied ingress) so REST and WebSocket URLs resolve correctly.
 
 ```bash
 # Render the actual manifests.
