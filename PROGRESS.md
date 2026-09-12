@@ -55,6 +55,13 @@ Complete website with all product screens and working demo interactions, Python 
 - Unit tests pin the formulas against the definition rather than against our output, including that beta=1/2 punishes a false alarm harder than a miss.
 - Fixed while doing this: `publish_care_evaluation.py` rewrote the hash-tracked `care-evaluation.json` without refreshing the manifest, so the hashes the Performance page invites readers to verify would have gone stale.
 
+## B0 baseline scored on CARE (2026-09-13)
+- `scripts/evaluate_b0_care.py` scores the static-threshold baseline on the same events with the same CARE implementation: flag a row when any monitored temperature leaves the 0.5-99.5% band of that event's own normal-operation training rows. No model, nothing learned from operating conditions. Identical smoothing, counter, not-assessable rule and scoring conventions, so the comparison is fair. The band's ~1% training flag rate matches M2's calibrated baseline flag rate.
+- **B0 CARE 0.561 against M2's 0.577.** A 0.016 margin. At the benchmark's threshold of 72 both alarm on over half the healthy events (27 and 26 of 50), which compresses the gap.
+- At the deployable operating point of 432 the separation is real: M2 detects 14 of 37 with 4 false alarms, B0 detects 11 with 5.
+- **On farm A the baseline beats the model**: B0 0.508 against M2's 0.000, because B0 catches one event and M2 catches none, and the no-detection rule then zeroes M2. Reported rather than buried; it is the clearest single argument for training M1 and improving farm A coverage.
+- The benchmark table now lists only models that were actually scored, with a line naming M1 and M3 as untrained rather than showing empty rows. Nothing invented was added to fill the table.
+
 ## Outstanding evidence
 - M1 (EnergyFaultDetector autoencoder), M3 and the M1/M2 fusion are still untrained; SHAP explanations are still absent. M2 and the infrared CNN are the real models.
 - The fleet, solar and planner screens still run on the synthetic demo bundle and remain labelled Simulated. The measured CARE results appear only on the Performance page, and are kept visibly separate from that simulated fleet.

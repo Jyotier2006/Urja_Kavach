@@ -27,20 +27,19 @@ FARMS = ("a", "b", "c")
 FALSE_ALARM_BUDGET = 0.10
 
 
-def load_farms() -> list[dict]:
+def load_farms(prefix: str = "care_m2_wind_farm") -> list[dict]:
     farms = []
     for farm in FARMS:
-        path = METRICS / f"care_m2_wind_farm_{farm}.json"
+        path = METRICS / f"{prefix}_{farm}.json"
         if not path.exists(): continue
-        summary = json.loads(path.read_text())["summary"]
-        farms.append(summary)
+        farms.append(json.loads(path.read_text())["summary"])
     return farms
 
 
-def load_events() -> list[dict]:
+def load_events(prefix: str = "care_m2_wind_farm") -> list[dict]:
     events = []
     for farm in FARMS:
-        path = METRICS / f"care_m2_wind_farm_{farm}.json"
+        path = METRICS / f"{prefix}_{farm}.json"
         if not path.exists(): continue
         events.extend(json.loads(path.read_text())["events"])
     return events
@@ -51,7 +50,11 @@ def mean(values: list[float]) -> float:
 
 
 def care_benchmark(farms: list[dict], events: list[dict]) -> dict:
-    """The CARE score over every scored event, pooled rather than averaged per farm."""
+    """The CARE score over every scored event, pooled rather than averaged per farm.
+
+    Shared by M2 and the B0 baseline so both are scored by identical code."""
+    if not farms:
+        return {"computed": False, "reason": "No per-farm evaluation files found for this model."}
     coverages = [e["care_components"]["coverage"] for e in events
                  if e.get("care_components") and e["label"] == "anomaly"]
     earlinesses = [e["care_components"]["earliness"] for e in events
@@ -111,6 +114,19 @@ def choose_threshold(farms: list[dict]) -> str | None:
     return max(viable)[2] if viable else None
 
 
+def baseline_at(farms: list[dict], key: str) -> dict:
+    """B0's detections and false alarms at the same operating point M2 is published on."""
+    if not farms: return {"computed": False}
+    return {
+        "computed": True, "model": "B0 - static training-percentile threshold",
+        "criticality_threshold": int(key),
+        "detected": sum(f["criticality_sweep"][key]["detected"] for f in farms),
+        "anomaly_events": sum(f["anomaly_events"] for f in farms),
+        "false_alarms": sum(f["criticality_sweep"][key]["false_alarms"] for f in farms),
+        "normal_events": sum(f["normal_events"] for f in farms),
+    }
+
+
 def set_m2_status(target: Path, status: str) -> None:
     """Keep the model table's own status line in step with what was actually computed."""
     for name in ("metrics.json", "bundle.json"):
@@ -167,6 +183,12 @@ def main():
         "provenance": "Measured",
         "caveat": "Our own normal-behavior evaluation on real CARE labels, reported at the operating point below. The CARE score itself is computed separately, under the benchmark's definition.",
         "care_benchmark": care_benchmark(farms, load_events()),
+        # The static-threshold baseline, scored identically. Without it the M2 row has nothing to beat.
+        "care_benchmark_b0": care_benchmark(load_farms("care_b0_wind_farm"), load_events("care_b0_wind_farm")),
+        # The same baseline at the deployable operating point. The CARE score is taken at the paper's
+        # threshold of 72, where both models alarm on over half the healthy events and the gap between
+        # them compresses; the separation shows at the threshold an operator would actually run.
+        "baseline_at_operating_point": baseline_at(load_farms("care_b0_wind_farm"), key),
         "operating_point": {
             "criticality_threshold": int(key),
             "selection": f"one threshold for every farm, the most sensitive whose false-alarm rate over all healthy events stays under {int(FALSE_ALARM_BUDGET * 100)}%. Chosen on healthy events only; fault labels never vote.",

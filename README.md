@@ -227,15 +227,36 @@ These are project-specific measurements at a deployable operating point. The 26.
 
 The benchmark defines its own composite, and [care_score.py](services/ml/care_score.py) computes it from the published definition rather than leaving the table blank. Scored at the benchmark's **own event threshold of 72**, not at the operating point above, so these figures are stricter on false alarms and are not comparable row-for-row with the table above.
 
-| | **M2 pooled** | Farm A | Farm B | Farm C |
-|---|---:|---:|---:|---:|
-| **CARE** | **0.577** | 0.000 | 0.649 | 0.580 |
-| Coverage · F₀.₅ per anomaly event | 0.386 | 0.007 | 0.628 | 0.388 |
-| Accuracy · tn/(fp+tn) per normal event | 0.871 | 0.944 | 0.891 | 0.841 |
-| Reliability · event-level F₀.₅ | 0.480 | 0.000 | 0.556 | 0.516 |
-| Earliness · weighted window share | 0.275 | 0.001 | 0.281 | 0.315 |
+| | **M2** LightGBM NBM | **B0** static threshold |
+|---|---:|---:|
+| **CARE** | **0.577** | 0.561 |
+| Coverage · F₀.₅ per anomaly event | 0.386 | 0.353 |
+| Accuracy · tn/(fp+tn) per normal event | 0.871 | 0.881 |
+| Reliability · event-level F₀.₅ | 0.480 | 0.459 |
+| Earliness · weighted window share | 0.275 | 0.232 |
 
-Pooled over 37 anomaly and 50 normal events: 22 detected, 15 missed, 26 normal events alarmed. Components are pooled across every scored event rather than averaged per farm, because the farms hold 12, 6 and 27 anomaly events. **Farm A scores zero** under the paper's own rule that a run detecting nothing scores nothing; three of its scored anomaly events have no running hours inside their own labelled window, so no positive datapoint exists to find. Those events stay in the average rather than being dropped.
+**B0 is the honest control**: the same pipeline with the model removed, flagging a row when a temperature leaves the 0.5–99.5% band of its own training history, with identical smoothing, counter, event set and scoring. Reproduce it with [evaluate_b0_care.py](scripts/evaluate_b0_care.py).
+
+M2 beats it by **0.016** — a narrow margin, and worth understanding rather than glossing. At the benchmark's threshold of 72 both models alarm on more than half the healthy events (26 and 27 of 50), which compresses the gap. The separation appears at a threshold an operator would actually run:
+
+| At criticality 432 | Detected | False alarms |
+|---|---:|---:|
+| **M2** | **14 / 37** | **4 / 50** |
+| B0 | 11 / 37 | 5 / 50 |
+
+Modelling temperature from operating conditions buys earlier and cleaner detection, not a different order of magnitude. Reporting that plainly is more useful than a headline that implies otherwise.
+
+Per farm, M2:
+
+| | Farm A | Farm B | Farm C |
+|---|---:|---:|---:|
+| **CARE** | 0.000 | 0.649 | 0.580 |
+| Coverage | 0.007 | 0.628 | 0.388 |
+| Accuracy | 0.944 | 0.891 | 0.841 |
+| Reliability | 0.000 | 0.556 | 0.516 |
+| Earliness | 0.001 | 0.281 | 0.315 |
+
+Pooled over 37 anomaly and 50 normal events: 22 detected, 15 missed, 26 normal events alarmed. On **farm A the baseline beats the model** — B0 scores 0.508 there against M2's zero, because B0 catches one event and M2 catches none, and the paper's no-detection rule then zeroes M2 outright. Components are pooled across every scored event rather than averaged per farm, because the farms hold 12, 6 and 27 anomaly events. **Farm A scores zero** under the paper's own rule that a run detecting nothing scores nothing; three of its scored anomaly events have no running hours inside their own labelled window, so no positive datapoint exists to find. Those events stay in the average rather than being dropped.
 
 Two conventions the paper leaves to the implementer are fixed explicitly, because they move the result: only prediction-window rows are scored, and within an anomaly event a row is positive when it falls inside `[event_start, event_end]`. Rows outside normal operating status are excluded, which the paper does require.
 

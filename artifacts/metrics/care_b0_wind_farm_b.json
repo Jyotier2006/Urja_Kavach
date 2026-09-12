@@ -1,0 +1,880 @@
+{
+  "summary": {
+    "farm": "B",
+    "model": "B0 - static training-percentile threshold",
+    "data": "real CARE To Compare v6",
+    "definition": "a row is flagged when any monitored temperature leaves the [0.5%, 99.5%] band of that event's own normal-operation training rows",
+    "caveat": "Baseline for comparison against M2. No model; nothing is learned from operating conditions.",
+    "targets_per_event": 25,
+    "smoothing_window_rows": 72,
+    "events_evaluated": 15,
+    "events_not_assessable": 0,
+    "events_errored": 0,
+    "anomaly_events": 6,
+    "normal_events": 9,
+    "care_benchmark": {
+      "care": 0.5709,
+      "coverage": 0.504,
+      "accuracy": 0.7974,
+      "reliability": 0.5,
+      "earliness": 0.2556,
+      "rule": "weighted average of the four components",
+      "beta": 0.5,
+      "event_threshold": 72,
+      "anomaly_events_scored": 6,
+      "normal_events_scored": 9,
+      "detected_events": 5,
+      "missed_events": 1,
+      "false_alarm_events": 6
+    },
+    "criticality_sweep": {
+      "12": {
+        "detected": 6,
+        "detection_rate": 1.0,
+        "detected_before_event_start": 2,
+        "warning_days_before_event_end_median": 33.42,
+        "false_alarms": 7,
+        "false_alarm_rate": 0.778
+      },
+      "24": {
+        "detected": 6,
+        "detection_rate": 1.0,
+        "detected_before_event_start": 2,
+        "warning_days_before_event_end_median": 33.81,
+        "false_alarms": 7,
+        "false_alarm_rate": 0.778
+      },
+      "48": {
+        "detected": 5,
+        "detection_rate": 0.833,
+        "detected_before_event_start": 1,
+        "warning_days_before_event_end_median": 35.52,
+        "false_alarms": 6,
+        "false_alarm_rate": 0.667
+      },
+      "72": {
+        "detected": 5,
+        "detection_rate": 0.833,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": 35.35,
+        "false_alarms": 6,
+        "false_alarm_rate": 0.667
+      },
+      "144": {
+        "detected": 5,
+        "detection_rate": 0.833,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": 28.49,
+        "false_alarms": 5,
+        "false_alarm_rate": 0.556
+      },
+      "288": {
+        "detected": 4,
+        "detection_rate": 0.667,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": 19.41,
+        "false_alarms": 4,
+        "false_alarm_rate": 0.444
+      },
+      "432": {
+        "detected": 4,
+        "detection_rate": 0.667,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": 18.21,
+        "false_alarms": 2,
+        "false_alarm_rate": 0.222
+      },
+      "576": {
+        "detected": 3,
+        "detection_rate": 0.5,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": 9.49,
+        "false_alarms": 2,
+        "false_alarm_rate": 0.222
+      },
+      "864": {
+        "detected": 3,
+        "detection_rate": 0.5,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": -1.4,
+        "false_alarms": 1,
+        "false_alarm_rate": 0.111
+      },
+      "1152": {
+        "detected": 2,
+        "detection_rate": 0.333,
+        "detected_before_event_start": 0,
+        "warning_days_before_event_end_median": 10.89,
+        "false_alarms": 0,
+        "false_alarm_rate": 0.0
+      }
+    },
+    "runtime_seconds": 46.2
+  },
+  "events": [
+    {
+      "farm": "B",
+      "event_id": 2,
+      "asset": 13,
+      "label": "normal",
+      "rows": 54774,
+      "observable_prediction_rows": 2160,
+      "targets": 25,
+      "peak_criticality_in_prediction": 709,
+      "event_start": "2023-08-09T19:20:00",
+      "event_end": "2023-08-23T04:20:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-08-12T21:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 10.3
+        },
+        "24": {
+          "alarm_time": "2023-08-08T19:40:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 14.36
+        },
+        "48": {
+          "alarm_time": "2023-08-08T23:40:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 14.19
+        },
+        "72": {
+          "alarm_time": "2023-08-09T03:40:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 14.03
+        },
+        "144": {
+          "alarm_time": "2023-08-09T15:40:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 13.53
+        },
+        "288": {
+          "alarm_time": "2023-08-14T19:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 8.38
+        },
+        "432": {
+          "alarm_time": "2023-08-15T19:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 7.36
+        },
+        "576": {
+          "alarm_time": "2023-08-16T19:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 6.36
+        },
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.3866,
+        "scored_rows": 2160
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 7,
+      "asset": 13,
+      "label": "anomaly",
+      "rows": 57888,
+      "observable_prediction_rows": 4911,
+      "targets": 25,
+      "peak_criticality_in_prediction": 1096,
+      "event_start": "2023-07-01T00:00:00",
+      "event_end": "2023-08-01T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-06-30T22:00:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 31.08
+        },
+        "24": {
+          "alarm_time": "2023-06-30T01:30:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 31.94
+        },
+        "48": {
+          "alarm_time": "2023-06-30T05:30:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 31.77
+        },
+        "72": {
+          "alarm_time": "2023-07-07T09:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 24.6
+        },
+        "144": {
+          "alarm_time": "2023-07-19T11:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 12.53
+        },
+        "288": {
+          "alarm_time": "2023-07-20T11:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 11.53
+        },
+        "432": {
+          "alarm_time": "2023-07-21T12:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 10.49
+        },
+        "576": {
+          "alarm_time": "2023-07-22T12:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.49
+        },
+        "864": {
+          "alarm_time": "2023-08-03T00:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -2.02
+        },
+        "1152": null
+      },
+      "care_components": {
+        "coverage": 0.6079,
+        "earliness": 0.2756,
+        "anomaly_rows_in_window": 4210,
+        "scored_rows": 4911
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 19,
+      "asset": 11,
+      "label": "anomaly",
+      "rows": 56274,
+      "observable_prediction_rows": 3696,
+      "targets": 25,
+      "peak_criticality_in_prediction": 41,
+      "event_start": "2023-02-03T00:00:00",
+      "event_end": "2023-02-23T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-02-13T21:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.1
+        },
+        "24": {
+          "alarm_time": "2023-02-13T23:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.02
+        },
+        "48": null,
+        "72": null,
+        "144": null,
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "coverage": 0.0679,
+        "earliness": 0.0162,
+        "anomaly_rows_in_window": 2855,
+        "scored_rows": 3696
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 21,
+      "asset": 0,
+      "label": "normal",
+      "rows": 53514,
+      "observable_prediction_rows": 1269,
+      "targets": 25,
+      "peak_criticality_in_prediction": 41,
+      "event_start": "2023-09-22T20:10:00",
+      "event_end": "2023-10-01T20:10:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-09-29T11:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 2.38
+        },
+        "24": {
+          "alarm_time": "2023-09-29T13:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 2.29
+        },
+        "48": null,
+        "72": null,
+        "144": null,
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9677,
+        "scored_rows": 1269
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 23,
+      "asset": 6,
+      "label": "normal",
+      "rows": 54542,
+      "observable_prediction_rows": 1743,
+      "targets": 25,
+      "peak_criticality_in_prediction": 0,
+      "event_start": "2023-09-17T17:30:00",
+      "event_end": "2023-09-27T11:50:00",
+      "alarms": {
+        "12": null,
+        "24": null,
+        "48": null,
+        "72": null,
+        "144": null,
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 1743
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 27,
+      "asset": 7,
+      "label": "anomaly",
+      "rows": 62268,
+      "observable_prediction_rows": 8692,
+      "targets": 25,
+      "peak_criticality_in_prediction": 173,
+      "event_start": "2023-09-01T00:00:00",
+      "event_end": "2023-11-01T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-09-03T23:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 58.02
+        },
+        "24": {
+          "alarm_time": "2023-09-04T01:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 57.94
+        },
+        "48": {
+          "alarm_time": "2023-09-04T05:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 57.77
+        },
+        "72": {
+          "alarm_time": "2023-09-19T15:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 42.38
+        },
+        "144": {
+          "alarm_time": "2023-10-03T12:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 28.49
+        },
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "coverage": 0.3573,
+        "earliness": 0.1198,
+        "anomaly_rows_in_window": 8404,
+        "scored_rows": 8692
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 34,
+      "asset": 14,
+      "label": "anomaly",
+      "rows": 56564,
+      "observable_prediction_rows": 3889,
+      "targets": 25,
+      "peak_criticality_in_prediction": 1505,
+      "event_start": "2023-08-24T00:00:00",
+      "event_end": "2023-09-15T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-09-05T03:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.85
+        },
+        "24": {
+          "alarm_time": "2023-09-05T05:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.77
+        },
+        "48": {
+          "alarm_time": "2023-09-05T09:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.6
+        },
+        "72": {
+          "alarm_time": "2023-09-05T13:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.44
+        },
+        "144": {
+          "alarm_time": "2023-09-06T01:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 8.94
+        },
+        "288": {
+          "alarm_time": "2023-09-07T01:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 7.94
+        },
+        "432": {
+          "alarm_time": "2023-09-13T09:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 1.6
+        },
+        "576": {
+          "alarm_time": "2023-09-14T09:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 0.6
+        },
+        "864": {
+          "alarm_time": "2023-09-16T09:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -1.4
+        },
+        "1152": {
+          "alarm_time": "2023-09-18T12:50:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -3.53
+        }
+      },
+      "care_components": {
+        "coverage": 0.4873,
+        "earliness": 0.2009,
+        "anomaly_rows_in_window": 3046,
+        "scored_rows": 3889
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 52,
+      "asset": 14,
+      "label": "normal",
+      "rows": 55268,
+      "observable_prediction_rows": 2730,
+      "targets": 25,
+      "peak_criticality_in_prediction": 420,
+      "event_start": "2023-07-14T00:00:00",
+      "event_end": "2023-07-28T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-07-18T20:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.17
+        },
+        "24": {
+          "alarm_time": "2023-07-18T22:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 9.08
+        },
+        "48": {
+          "alarm_time": "2023-07-19T02:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 8.92
+        },
+        "72": {
+          "alarm_time": "2023-07-19T06:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 8.75
+        },
+        "144": {
+          "alarm_time": "2023-07-19T18:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 8.25
+        },
+        "288": {
+          "alarm_time": "2023-07-20T18:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 7.25
+        },
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.7769,
+        "scored_rows": 2730
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 53,
+      "asset": 6,
+      "label": "anomaly",
+      "rows": 58607,
+      "observable_prediction_rows": 5711,
+      "targets": 25,
+      "peak_criticality_in_prediction": 2818,
+      "event_start": "2023-12-26T16:40:00",
+      "event_end": "2024-02-06T16:30:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2024-01-01T22:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 35.77
+        },
+        "24": {
+          "alarm_time": "2024-01-02T00:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 35.69
+        },
+        "48": {
+          "alarm_time": "2024-01-02T04:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 35.52
+        },
+        "72": {
+          "alarm_time": "2024-01-02T08:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 35.35
+        },
+        "144": {
+          "alarm_time": "2024-01-03T18:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 33.92
+        },
+        "288": {
+          "alarm_time": "2024-01-04T18:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 32.92
+        },
+        "432": {
+          "alarm_time": "2024-01-07T09:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 30.31
+        },
+        "576": {
+          "alarm_time": "2024-01-08T09:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 29.31
+        },
+        "864": {
+          "alarm_time": "2024-01-10T09:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 27.31
+        },
+        "1152": {
+          "alarm_time": "2024-01-12T09:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 25.31
+        }
+      },
+      "care_components": {
+        "coverage": 0.9068,
+        "earliness": 0.7116,
+        "anomaly_rows_in_window": 5711,
+        "scored_rows": 5711
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 74,
+      "asset": 11,
+      "label": "normal",
+      "rows": 55602,
+      "observable_prediction_rows": 3019,
+      "targets": 25,
+      "peak_criticality_in_prediction": 394,
+      "event_start": "2023-01-03T23:00:00",
+      "event_end": "2023-01-17T07:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-01-16T16:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 0.62
+        },
+        "24": {
+          "alarm_time": "2023-01-16T18:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 0.53
+        },
+        "48": {
+          "alarm_time": "2023-01-16T22:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 0.37
+        },
+        "72": {
+          "alarm_time": "2023-01-17T02:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 0.2
+        },
+        "144": {
+          "alarm_time": "2023-01-21T13:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -4.26
+        },
+        "288": {
+          "alarm_time": "2023-01-22T13:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -5.26
+        },
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.8019,
+        "scored_rows": 3019
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 77,
+      "asset": 12,
+      "label": "anomaly",
+      "rows": 61776,
+      "observable_prediction_rows": 8223,
+      "targets": 25,
+      "peak_criticality_in_prediction": 446,
+      "event_start": "2023-06-01T00:00:00",
+      "event_end": "2023-07-31T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-05-30T16:40:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 61.31
+        },
+        "24": {
+          "alarm_time": "2023-05-30T18:40:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 61.22
+        },
+        "48": {
+          "alarm_time": "2023-06-02T14:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 58.41
+        },
+        "72": {
+          "alarm_time": "2023-06-02T18:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 58.24
+        },
+        "144": {
+          "alarm_time": "2023-06-27T22:20:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 33.07
+        },
+        "288": {
+          "alarm_time": "2023-07-03T17:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 27.28
+        },
+        "432": {
+          "alarm_time": "2023-07-05T01:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 25.93
+        },
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "coverage": 0.5966,
+        "earliness": 0.2094,
+        "anomaly_rows_in_window": 7862,
+        "scored_rows": 8223
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 82,
+      "asset": 5,
+      "label": "normal",
+      "rows": 54992,
+      "observable_prediction_rows": 2387,
+      "targets": 25,
+      "peak_criticality_in_prediction": 874,
+      "event_start": "2023-09-26T23:00:00",
+      "event_end": "2023-10-08T23:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-09-26T06:50:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 12.67
+        },
+        "24": {
+          "alarm_time": "2023-09-26T08:50:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 12.59
+        },
+        "48": {
+          "alarm_time": "2023-09-26T12:50:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 12.42
+        },
+        "72": {
+          "alarm_time": "2023-09-26T16:50:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 12.26
+        },
+        "144": {
+          "alarm_time": "2023-10-02T02:50:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 6.84
+        },
+        "288": {
+          "alarm_time": "2023-10-05T07:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 3.65
+        },
+        "432": {
+          "alarm_time": "2023-10-06T07:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 2.64
+        },
+        "576": {
+          "alarm_time": "2023-10-07T07:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 1.64
+        },
+        "864": {
+          "alarm_time": "2023-10-09T07:40:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -0.36
+        },
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.4906,
+        "scored_rows": 2387
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 83,
+      "asset": 2,
+      "label": "normal",
+      "rows": 66154,
+      "observable_prediction_rows": 12859,
+      "targets": 25,
+      "peak_criticality_in_prediction": 137,
+      "event_start": "2023-07-01T00:00:00",
+      "event_end": "2023-09-30T00:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-06-29T23:50:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 92.01
+        },
+        "24": {
+          "alarm_time": "2023-06-30T01:50:00",
+          "before_event_start": true,
+          "warning_days_before_event_end": 91.92
+        },
+        "48": {
+          "alarm_time": "2023-08-14T03:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 46.87
+        },
+        "72": {
+          "alarm_time": "2023-08-14T07:10:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 46.7
+        },
+        "144": null,
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.9697,
+        "scored_rows": 12859
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 86,
+      "asset": 12,
+      "label": "normal",
+      "rows": 55486,
+      "observable_prediction_rows": 2856,
+      "targets": 25,
+      "peak_criticality_in_prediction": 0,
+      "event_start": "2023-04-28T17:30:00",
+      "event_end": "2023-05-12T01:10:00",
+      "alarms": {
+        "12": null,
+        "24": null,
+        "48": null,
+        "72": null,
+        "144": null,
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 1.0,
+        "scored_rows": 2856
+      }
+    },
+    {
+      "farm": "B",
+      "event_id": 87,
+      "asset": 7,
+      "label": "normal",
+      "rows": 55356,
+      "observable_prediction_rows": 2934,
+      "targets": 25,
+      "peak_criticality_in_prediction": 171,
+      "event_start": "2023-09-14T23:00:00",
+      "event_end": "2023-09-30T23:00:00",
+      "alarms": {
+        "12": {
+          "alarm_time": "2023-09-19T05:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 11.75
+        },
+        "24": {
+          "alarm_time": "2023-09-19T07:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 11.67
+        },
+        "48": {
+          "alarm_time": "2023-09-19T11:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 11.5
+        },
+        "72": {
+          "alarm_time": "2023-09-19T15:00:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": 11.33
+        },
+        "144": {
+          "alarm_time": "2023-10-03T12:30:00",
+          "before_event_start": false,
+          "warning_days_before_event_end": -2.56
+        },
+        "288": null,
+        "432": null,
+        "576": null,
+        "864": null,
+        "1152": null
+      },
+      "care_components": {
+        "accuracy": 0.7832,
+        "scored_rows": 2934
+      }
+    }
+  ]
+}
