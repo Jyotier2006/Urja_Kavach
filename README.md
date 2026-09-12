@@ -19,7 +19,7 @@ A digital operations twin for the people who keep wind and solar assets running.
 
 </div>
 
-![UrjaKavach fleet overview with an interactive wind and solar site twin, asset warnings and replay controls](docs/assets/readme/fleet-twin.png)
+![UrjaKavach fleet overview with an interactive wind and solar site twin, site infrastructure, asset warnings and replay controls](docs/assets/readme/fleet-twin.png)
 
 *The demonstration site is schematic. Operational telemetry, asset risk and financial exposure in these screenshots are labelled simulated or estimated.*
 
