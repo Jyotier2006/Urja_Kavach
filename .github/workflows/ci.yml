@@ -20,7 +20,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install --only-binary=:all: -r requirements.lock
+      # Quoted: the `:all:` in --only-binary puts a colon-space inside the value, which YAML
+      # cannot carry in a plain scalar. Unquoted, GitHub rejects the whole file as invalid.
+      - run: "pip install --only-binary=:all: -r requirements.lock"
       - run: python -m pytest services tests -q
 
   web:
