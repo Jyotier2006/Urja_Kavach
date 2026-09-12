@@ -25,8 +25,8 @@ Complete website with all product screens and working demo interactions, Python 
 
 ## Infrastructure (2026-09-12)
 - Container images for the API and web app, both building and running. Compose brings up web, API and PostgreSQL with all three healthy and the API actually on Postgres rather than the SQLite fallback.
-- Kubernetes base manifests with dev and prod overlays: probes, resource bounds, non-root and read-only-root security contexts, HPA, PodDisruptionBudget and ingress. Both overlays render and pass `kubectl apply --dry-run=client`. Never applied to a live cluster.
-- CI workflow covering Python tests, typecheck/lint/build, the browser journey, both image builds and manifest validation.
+- Kubernetes base manifests with dev and prod overlays: probes, resource bounds, non-root and read-only-root security contexts, HPA, PodDisruptionBudget and ingress. Both overlays render. Never applied to a live cluster. (Corrected 2026-09-13: the `kubectl apply --dry-run=client` check recorded here only passed because a local cluster happened to be running — it downloads its schema from an API server. Replaced with offline kubeconform validation.)
+- CI workflow covering Python tests, typecheck/lint/build, the browser journey, both image builds and manifest validation. (Corrected 2026-09-13: the workflow file was invalid YAML and GitHub never scheduled a single job, so nothing here had ever run in CI.)
 - Fixed along the way: `scripts/build_offline.py` failed on a fresh clone because `artifacts/metrics/` did not exist, and `/health` hardcoded `care_evaluated: false`, which had gone stale.
 
 ## Infrared classifier (2026-09-12)
@@ -36,12 +36,25 @@ Complete website with all product screens and working demo interactions, Python 
 - Weights (1.17 MB) committed under the amended rule in CONTRIBUTING.md; torch pinned to the CPU build so venv, Docker and CI resolve the same wheel.
 - Python suite: 35 passed.
 
+## Problem-statement gaps and integration verification (2026-09-13)
+- **Vibration and phase current were never rendered.** Both channels existed in the generated scenarios, the feature map and the TypeScript types, but no screen drew them, leaving two of the four sensor modalities named in the brief invisible. Now charted on the investigation screen, each on its own axis, with rotor speed alongside current. Vibration climbs 1.10 to 3.10 mm/s across the fault scenario and stays flat at 1.10 in the normal one; it remains labelled Simulated and excluded from every reported model metric.
+- **The MQTT hop had never been executed.** Publisher and subscriber logic is now importable rather than buried in `main()`, and `tests/test_mqtt_integration.py` runs the whole chain — real publisher payload, real broker, real subscriber callback, real HTTP, a real API process — asserting the alert at the far end. A second test confirms a forged reading off the wire cannot inject telemetry, since only scenario id and step cross the boundary.
+- The broker is amqtt in-process, pinned in a separate `requirements-dev.lock` so it never reaches the API image. Docker was tried first; the local engine hangs on container start, and the in-process broker is the better answer anyway because it needs no Docker in CI.
+- **Outbound alert delivery had never been exercised.** `tests/test_alert_delivery.py` asserts the webhook contract against a live local receiver across all four paths: configured, unconfigured, HTTP 500 and unreachable host. Slack itself is still never contacted.
+- **CI had never run.** `--only-binary=:all:` puts a colon-space inside a plain YAML scalar, so GitHub rejected the workflow outright — fifteen runs across both repositories, none of which scheduled a job. Once fixed, two further failures surfaced that had always been latent: `setup-python`'s pip cache could not resolve a dependency file because this project pins through `.lock` files, and the manifest job used a validator that requires a live cluster.
+- `docs/TRACEABILITY.md` was rewritten against the problem statement clause by clause; it had still recorded "CARE metrics unavailable", contradicting the published results.
+- Verification: 48 Python tests (was 35), 3 Playwright tests, typecheck, lint, production build, offline service worker, and both overlays valid under kubeconform — 8 resources in dev, 10 in prod.
+
 ## Outstanding evidence
 - M1 (EnergyFaultDetector autoencoder), M3 and the M1/M2 fusion are still untrained; SHAP explanations are still absent. M2 and the infrared CNN are the real models.
 - The fleet, solar and planner screens still run on the synthetic demo bundle and remain labelled Simulated. The measured CARE results appear only on the Performance page, and are kept visibly separate from that simulated fleet.
 - Reported CARE numbers come from our own normal-behavior approach on real CARE labels. They are not a published CARE benchmark score and must never be presented as one.
-- Docker runtime and deployed cloud infrastructure are unavailable in the current runtime; no cloud deployment will be claimed.
-- Sentry DSNs, Slack webhook and trained IR weights are not supplied.
+- No cloud deployment will be claimed. The container images build and Compose runs the full stack, but nothing has been deployed to a hosted environment or a live Kubernetes cluster.
+- No Sentry DSN and no real Slack webhook are supplied, so neither has been contacted. The webhook contract is nonetheless verified against a local receiver. (Corrected 2026-09-13: this line previously also listed trained IR weights as missing, which contradicted the infrared section above — the weights are committed at `artifacts/models/ir_classifier.pt`.)
 
 ## Next
-- Complete the interaction flows, run Python and browser tests, build production assets and package source.
+- Independent event-level CARE evaluation against a frozen split, then the official benchmark scoring.
+- M1, M3 and the M1/M2 fusion; SHAP or ARCANA explanations to replace the current association panel.
+- Real solar telemetry, so the solar screens stop running entirely on the synthetic bundle.
+- Stronger rare-class infrared performance and a model card.
+- Production authentication, shared event delivery and a durable escalation worker before any multi-replica deployment.
