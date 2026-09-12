@@ -480,6 +480,7 @@ Rebuild the web export after publishing new artifacts. Keep model evaluation out
 The [GitHub Actions workflow](.github/workflows/ci.yml) defines Python tests, type checking, linting, static export, browser journeys, Docker image builds and Kubernetes manifest validation. Image builds do not publish to a registry. See [Actions](https://github.com/Jyotier2006/Urja_Kavach/actions) for current run status; configured checks are not a claim of green CI.
 
 ```bash
+.venv/bin/python -m pip install -r requirements-dev.lock   # in-process MQTT broker for the chain test
 .venv/bin/python -m pytest services tests -q
 npm run typecheck
 npm run lint
@@ -488,7 +489,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright covers the detect-to-evidence journey, phone-width layout and offline reload/navigation. Its [committed report](artifacts/metrics/browser-tests.json) records three passing tests. Python tests cover loss calculations, constraints, work-order validation, criticality and model behaviour; rerun the current suite because the committed Python report predates the newer model tests.
+Playwright covers the detect-to-evidence journey, phone-width layout and offline reload/navigation. Its [committed report](artifacts/metrics/browser-tests.json) records three passing tests. Python tests cover loss calculations, constraints, work-order validation, criticality and model behaviour.
+
+Two integration paths are exercised rather than assumed. [test_mqtt_integration.py](tests/test_mqtt_integration.py) runs the whole ingestion chain — real publisher payload, real MQTT broker, real subscriber callback, real HTTP, a real API process — and asserts an alert at the far end, plus that a forged reading off the wire cannot inject telemetry. [test_alert_delivery.py](tests/test_alert_delivery.py) stands up a local HTTP receiver and asserts the outbound webhook payload, alongside the unconfigured, failing and unreachable cases. The broker is [amqtt](requirements-dev.lock), a test-only dependency that never reaches the API image; Slack itself is never contacted.
 
 ## Requirement coverage and next steps
 
@@ -500,9 +503,9 @@ Playwright covers the detect-to-evidence journey, phone-width layout and offline
 | **R4** | Prioritize maintenance | CP-SAT schedules with crew, skill, parts, shift and access constraints |
 | **R5** | Estimate energy/revenue exposure | Editable Python loss model with Monte Carlo scenario bands |
 | **R6** | Serve operators, technicians and managers | Dedicated responsive workspaces, checklists, inspection capture and portfolio view |
-| **R7** | IoT integration and cloud alerting | MQTT source, replay ingestion, WebSocket alerts and optional Slack escalation |
+| **R7** | IoT integration and cloud alerting | MQTT source, replay ingestion, WebSocket alerts and optional Slack escalation, with the broker chain and webhook contract both covered by integration tests |
 
-Next priorities are independent event-level CARE evaluation; M1/M3 and SHAP/ARCANA; real solar telemetry and fault-injection validation; stronger rare-class IR performance and a model card; production authentication, shared event delivery, durable escalation and cross-device synchronization. External MQTT/webhook delivery, live K8s rollout and cloud monitoring require their own end-to-end verification.
+Next priorities are independent event-level CARE evaluation; M1/M3 and SHAP/ARCANA; real solar telemetry and fault-injection validation; stronger rare-class IR performance and a model card; production authentication, shared event delivery, durable escalation and cross-device synchronization. Delivery to a hosted broker or a real Slack workspace, live K8s rollout and cloud monitoring still require their own verification against those services.
 
 ## Credits and licensing
 

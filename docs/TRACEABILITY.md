@@ -32,11 +32,11 @@ Role switching changes the workspace view. It is a demonstration control, not au
 
 | Technology | Implementation | Status |
 |---|---|---|
-| IoT sensor simulation | Scenario generator produces multi-channel 10-minute observations; replay publisher streams them over MQTT | **Working** (generation and replay endpoint) |
-| IoT integration | `services/simulator/replay.py` publishes to MQTT; `ingestion.py` subscribes and forwards to `POST /ingest/replay`, which is covered by tests including WebSocket alert delivery and de-duplication | **Partial** — the HTTP ingestion path is tested; the MQTT transport itself has not been run against a live broker |
+| IoT sensor simulation | Scenario generator produces multi-channel 10-minute observations; replay publisher streams them over MQTT | **Working** |
+| IoT integration | `services/simulator/replay.py` publishes to MQTT; `ingestion.py` subscribes and forwards to `POST /ingest/replay` | **Working** — `tests/test_mqtt_integration.py` runs the whole chain: real publisher payload, real broker, real subscriber callback, real HTTP, real API process, alert asserted at the far end |
 | AI/ML anomaly detection | LightGBM normal-behaviour models, scikit-learn preprocessing, PyTorch IRNet CNN with Grad-CAM | **Measured** |
 | Mobile/web technician dashboards | Responsive Next.js screens, technician workspace, offline service worker and precomputed bundle | **Working** — phone-width layout and offline navigation covered by browser tests |
-| Cloud-based alerting | WebSocket alert stream with acknowledgement and escalation timer; optional Slack incoming webhook | **Partial** — the stream and lifecycle are tested; outbound Slack delivery has not been exercised against a real webhook |
+| Cloud-based alerting | WebSocket alert stream with acknowledgement and escalation timer; optional Slack incoming webhook | **Working** — `tests/test_alert_delivery.py` asserts the outbound POST shape against a live local receiver, plus the unconfigured, failing and unreachable paths |
 
 ## Deliberate gaps
 
