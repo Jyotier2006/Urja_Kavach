@@ -5,6 +5,8 @@ namespace: urjakavach-dev
 resources:
   - namespace.yaml
   - ../../base
+  # Dev only. The base deliberately has no database so production can point at a managed one.
+  - postgres.yaml
 
 # One replica each and no autoscaler: a laptop cluster has nothing to scale onto.
 replicas:

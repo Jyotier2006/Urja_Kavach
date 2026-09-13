@@ -1,0 +1,90 @@
+# Dev-only PostgreSQL, so `kubectl apply -k k8s/overlays/dev` brings up a cluster that actually
+# runs rather than one whose API pod crash-loops looking for a database.
+#
+# This is NOT a production database and is deliberately not part of the base. It keeps its data in
+# an emptyDir, so the volume dies with the pod, and its password lives in the dev ConfigMap in plain
+# sight. A real deployment points DATABASE_URL at a managed PostgreSQL and never runs this file.
+apiVersion: v1
+kind: Service
+metadata:
+  name: urjakavach-db
+  labels:
+    app.kubernetes.io/name: urjakavach
+    app.kubernetes.io/component: database
+spec:
+  selector:
+    app.kubernetes.io/name: urjakavach
+    app.kubernetes.io/component: database
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urjakavach-db
+  labels:
+    app.kubernetes.io/name: urjakavach
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: urjakavach
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: urjakavach
+        app.kubernetes.io/component: database
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70          # the postgres user in the alpine image
+        fsGroup: 70
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_DB
+              value: urjakavach
+            - name: POSTGRES_USER
+              value: urjakavach
+            - name: POSTGRES_PASSWORD
+              value: CHANGE_ME
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: postgres
+              containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "urjakavach", "-d", "urjakavach"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "urjakavach", "-d", "urjakavach"]
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          emptyDir: {}

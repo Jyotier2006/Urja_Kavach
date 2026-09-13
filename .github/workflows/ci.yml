@@ -105,6 +105,87 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # Actually rolls the dev overlay out to a real cluster and waits for the pods to serve traffic.
+  # The manifests job below only checks the YAML; this one proves the thing runs.
+  k8s-rollout:
+    name: Kubernetes rollout
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/api.Dockerfile
+          push: false
+          load: true
+          tags: urjakavach-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build the web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/web.Dockerfile
+          push: false
+          load: true
+          tags: urjakavach-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create a Kubernetes cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: urjakavach
+
+      # kind runs its own containerd, so images built on the host are not visible until loaded.
+      - name: Load the images into the cluster
+        run: |
+          kind load docker-image urjakavach-api:latest --name urjakavach
+          kind load docker-image urjakavach-web:latest --name urjakavach
+
+      - name: Apply the dev overlay
+        run: kubectl apply -k k8s/overlays/dev
+
+      - name: Wait for every deployment to become available
+        run: |
+          for d in urjakavach-db urjakavach-api urjakavach-web; do
+            kubectl rollout status "deployment/$d" -n urjakavach-dev --timeout=300s
+          done
+
+      - name: Show what is running
+        run: |
+          kubectl get pods,svc,ingress -n urjakavach-dev -o wide
+          kubectl get deployments -n urjakavach-dev
+
+      # The proof that matters: the pods answer over the network, not merely that they started.
+      - name: Call the API and the web app through the cluster
+        run: |
+          kubectl port-forward -n urjakavach-dev svc/urjakavach-api 8000:8000 &
+          kubectl port-forward -n urjakavach-dev svc/urjakavach-web 8080:80 &
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1 && break || sleep 2
+          done
+          echo "--- API /health ---"
+          curl -fsS http://127.0.0.1:8000/health
+          echo ""
+          echo "--- API reports its database ---"
+          kubectl exec -n urjakavach-dev deploy/urjakavach-api -- \
+            python -c "import os;print('DATABASE_URL scheme:', os.environ.get('DATABASE_URL','sqlite').split('://')[0])"
+          echo "--- web app title ---"
+          curl -fsS http://127.0.0.1:8080/ | grep -o '<title>[^<]*</title>' | head -1
+
+      - name: Diagnose on failure
+        if: failure()
+        run: |
+          kubectl get pods -n urjakavach-dev -o wide || true
+          kubectl describe pods -n urjakavach-dev || true
+          kubectl logs -n urjakavach-dev -l app.kubernetes.io/name=urjakavach --all-containers --tail=80 || true
+
   manifests:
     name: Kubernetes manifests
     runs-on: ubuntu-latest
