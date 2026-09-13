@@ -24,7 +24,8 @@ playwright-report/
 logs/
 .state/
 
-# Generated and editor-local files (`next dev` regenerates apps/web/AGENTS.md)
+# Generated and editor-local files (`next dev` regenerates both agent rules files)
 apps/web/AGENTS.md
+apps/web/CLAUDE.md
 .idea/
 .vscode/
