@@ -54,7 +54,7 @@ function Blade(){
   return <mesh castShadow><extrudeGeometry args={[shape,{depth:.045,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.025}]}/><meshStandardMaterial color="#fbfbf5" roughness={.42} metalness={.05}/></mesh>;
 }
 
-function Turbine({asset,onSelect,warning}:{asset:Asset;onSelect:(id:string)=>void;warning:boolean}){
+function Turbine({asset,onSelect,warning,watch}:{asset:Asset;onSelect:(id:string)=>void;warning:boolean;watch:boolean}){
   const rotor=useRef<THREE.Group>(null);
   const nacelle=useRef<THREE.Group>(null);
   const playing=useApp(s=>s.playing);
@@ -83,7 +83,7 @@ function Turbine({asset,onSelect,warning}:{asset:Asset;onSelect:(id:string)=>voi
     {warning&&<WarningRing/>}
     {hovered&&!warning&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,.16,0]}><ringGeometry args={[1.15,1.32,44]}/><meshBasicMaterial color="#2f6b4f" transparent opacity={.55} side={THREE.DoubleSide}/></mesh>}
     <Html position={[.9,5.8,.9]} center zIndexRange={[8,0]}>
-      <button className={`asset-label ${warning?'warning':''} ${hovered?'hovered':''}`} onClick={()=>onSelect(asset.id)}>{asset.id}{warning&&<span>!</span>}</button>
+      <button className={`asset-label ${warning?'warning':''} ${!warning&&watch?'watch':''} ${hovered?'hovered':''}`} onClick={()=>onSelect(asset.id)}>{asset.id}{warning&&<span>!</span>}</button>
     </Html>
   </group>;
 }
@@ -299,7 +299,9 @@ export default function FarmScene({assets,onSelect,warning=true}:{assets:Asset[]
       <GroundShadow/>
       <Terrain/>
       {assets.map(a=>a.type==='wind'
-        ?<Turbine key={a.id} asset={a} onSelect={onSelect} warning={a.id==='T-03'&&warning}/>
+        // State comes from the asset's own status, not from a hardcoded id. `warning` is the
+        // replay gate: a Warning asset only lights up once playback reaches its alarm.
+        ?<Turbine key={a.id} asset={a} onSelect={onSelect} warning={a.status==='Warning'&&warning} watch={a.status==='Watch'}/>
         :<SolarBlock key={a.id} asset={a} onSelect={onSelect}/>)}
       <OrbitControls makeDefault enablePan={false} minZoom={10} maxZoom={28} minPolarAngle={.5} maxPolarAngle={1.15} target={[0,2.2,0]} enableDamping dampingFactor={.08} autoRotate={false}/>
     </Canvas>

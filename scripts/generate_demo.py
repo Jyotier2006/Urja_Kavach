@@ -48,7 +48,7 @@ def scenario(name: str, degrade: bool, seed: int) -> dict:
     actual = 34 + .008 * test[:, 1] + .62 * test[:, 2] + rng.normal(0, .45, n) + drift
     residual = (actual - expected) / spread
     smooth = []; prev = 0.
-    for r in residual: prev = .12 * abs(float(r)) + .88 * prev; smooth.append(prev)
+    for r in residual: prev = .12 * *abs(float(r)) + .88 * prev; smooth.append(prev)
     lower, upper = [float(v) for v in np.quantile(y[:split], [.005, .995])]
     b0 = (actual < lower) | (actual > upper)
     m2 = np.array(smooth) > 3.5
