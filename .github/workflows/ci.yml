@@ -163,21 +163,30 @@ jobs:
           kubectl get deployments -n urjakavach-dev
 
       # The proof that matters: the pods answer over the network, not merely that they started.
+      # Both Services publish on port 80; the container ports behind them differ.
       - name: Call the API and the web app through the cluster
         run: |
-          kubectl port-forward -n urjakavach-dev svc/urjakavach-api 8000:8000 &
-          kubectl port-forward -n urjakavach-dev svc/urjakavach-web 8080:80 &
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1 && break || sleep 2
-          done
-          echo "--- API /health ---"
-          curl -fsS http://127.0.0.1:8000/health
+          set -uo pipefail
+          kubectl port-forward -n urjakavach-dev svc/urjakavach-api 8000:80 >/tmp/pf-api.log 2>&1 &
+          kubectl port-forward -n urjakavach-dev svc/urjakavach-web 8080:80 >/tmp/pf-web.log 2>&1 &
+
+          wait_for() {
+            for _ in $(seq 1 45); do
+              curl -fsS "$1" >/dev/null 2>&1 && return 0
+              sleep 2
+            done
+            return 1
+          }
+
+          wait_for http://127.0.0.1:8000/health || { echo "API never answered"; cat /tmp/pf-api.log; exit 1; }
+          wait_for http://127.0.0.1:8080/       || { echo "web never answered"; cat /tmp/pf-web.log; exit 1; }
+
+          echo "--- API /health, served from the cluster ---"
+          curl -fsS http://127.0.0.1:8000/health || exit 1
           echo ""
-          echo "--- API reports its database ---"
-          kubectl exec -n urjakavach-dev deploy/urjakavach-api -- \
-            python -c "import os;print('DATABASE_URL scheme:', os.environ.get('DATABASE_URL','sqlite').split('://')[0])"
-          echo "--- web app title ---"
-          curl -fsS http://127.0.0.1:8080/ | grep -o '<title>[^<]*</title>' | head -1
+          echo "--- web app, served from the cluster ---"
+          curl -fsS -o /tmp/index.html -w 'HTTP %{http_code} · %{size_download} bytes\n' http://127.0.0.1:8080/ || exit 1
+          grep -o '<title>[^<]*</title>' /tmp/index.html | head -1 || echo '(no title tag in the export)'
 
       - name: Diagnose on failure
         if: failure()
